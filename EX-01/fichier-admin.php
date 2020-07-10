@@ -1,28 +1,29 @@
-<form enctype= "multipart/form-data" action= "fichier-admin.php" method= "POST" >
-<input type="file" accept= "image/png, image/jpeg, image/png" name= "fichier">
-<input type="text" name = "titre">
-<input type="text" name = "description">
-<input type="submit" name = "submit">
+<form action="index.php?page=4" method="post" enctype="multipart/form-data">
+    <input type="file" accept="image/png, image/jpg, image/jpeg" name="file" required>
+    <input type="text" name="title" placeholder="Titre">
+    <input type="text" name="desc" placeholder="Description">
+    <input type="submit" name="submit" value="Upload">
 </form>
-
 <?php
-if ($_FILES["fichier"]["size"] > 2097152)
-header ("location : fichier-admin.php");
- echo "<p> Le fichier est trop volumineux </p>";
-   
+if (empty($_FILES['file']))
+    echo("<p>En attente de fichier</p>");
+else {
+    $filename = $_FILES['file']['name'];
+    $filesize = $_FILES['file']['size'];
+    $destination = "./";
 
-$longueur = strlen($_FILES["fichier"]["name"]);
-echo $longueur;
-if ($longueur < 4){
-    echo "<p> Le nom du fichier n'est pas assez volumineux </p>";
+    if (strlen(substr($filename, 0, (strrpos($filename, ".")))) < 4)
+        echo("<p>Erreur dans le fichier: valeur ['name']</p>");
+    elseif ($filesize > 2097152)
+        echo("<p>Erreur dans le fichier: valeur ['size']</p>");
+    else {
+        if (!empty($_POST['title']))
+            $_SESSION['title'] = $_POST['title'];
+        if (!empty($_POST['desc']))
+            $_SESSION['desc'] = $_POST['desc'];
+        $_SESSION['image'] = $_FILES['file']['name'];
+        move_uploaded_file($_FILES['file']['tmp_name'], $_SESSION['image']);
+        header("Location: index.php?page=1");
+    }
 }
-
-session_start ();
-($_SESSION["description"] = $_POST["description"]);
-($_SESSION["titre"] = ($_POST["titre"]));
-($_SESSION['image'] = ($_FILES['fichier']['name']));
-echo "<p>" . ($_SESSION['description'] . "</p>");
-echo "<p>" . ($_SESSION['titre'] . "</p>");
-
-move_uploaded_file($_FILES["fichier"]['tmp_name'],"./" .($_FILES['fichier']['name']));
 ?>
